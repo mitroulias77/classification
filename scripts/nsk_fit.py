@@ -1,5 +1,6 @@
 import re
 import string
+from os import path
 
 import matplotlib.pyplot as plt
 from nltk import PorterStemmer
@@ -16,15 +17,14 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
-file = 'nsk_from_2000.xlsx'
+file = path.join('C:\Python\classification\data','nsk_from_2000.xlsx')
 xl = pd.ExcelFile(file)
 df = xl.parse('decisions')
 df.head()
 
 corpus = []
 STOPWORDS = set(stopwords.words('greek'))
-
-
+#Επεξεργασία ΓΝΩΜΟΔΟΤΗΣΕΩΝ
 for i in range(0, 10157):
     subject = re.sub(r"\d+", '', df['Concultatory'][i],flags=re.I)
     subject = re.sub(r"[-,()/@\'?\.$%_+\d]", '', df['Concultatory'][i],flags=re.I)
@@ -187,7 +187,7 @@ print(model_lstm.summary())
 
 #Εκπαίδευση  και αξιολόγηση του μοντέλου
 batch_size = 32
-model_lstm.fit(X1_train,Y1_train,epochs = 30,batch_size=batch_size, verbose = 2, validation_data=(X1_test,Y1_test))
+model_lstm.fit(X1_train,Y1_train,epochs = 5,batch_size=batch_size, verbose = 2, validation_data=(X1_test,Y1_test))
 
 y_pred = model_lstm.predict(X1_test)
 
