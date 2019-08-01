@@ -79,9 +79,6 @@ plt.show()
 
 value_counts = df1['Category'].value_counts()
 
-
-
-
 to_remove = value_counts[value_counts <= 500].index
 df1 = df1[~df1.Category.isin(to_remove)]
 df1 = df1.reset_index(drop=True)
