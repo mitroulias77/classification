@@ -48,7 +48,7 @@ df.columns = ['Submission_Date','Subject','Category']
 df.to_excel('NSK_new2.xlsx', engine='xlsxwriter')
 '''
 
-file = path.join('data', 'nsk_all.xlsx')
+file = path.join('C:\Python\classification\data', 'nsk_all.xlsx')
 xl = pd.ExcelFile(file)
 df = xl.parse('nsk_prakseis')
 df.head()
@@ -97,7 +97,6 @@ cat_id_df = df1[['Category', 'cat_id']].drop_duplicates().sort_values('cat_id')
 cat_to_id = dict(cat_id_df.values)
 id_to_cat = dict(cat_id_df[['cat_id', 'Category']].values)
 df1.head()
-
 
 fig = plt.figure(figsize=(8,6))
 df1.groupby('Category').Subject.count().plot.bar(ylim=0)
@@ -192,7 +191,7 @@ cv_df.groupby('model_name').accuracy.mean()
 
 #######################
 
-model = LinearSVC()#Linear Support Vector Classification.
+model = LinearSVC()#Linear Support Vector Machine Classification.
 
 X_train, X_test, y_train, y_test, indices_train, indices_test = train_test_split(features, labels, df1.index, test_size=0.33, random_state=0)
 model.fit(X_train, y_train)
