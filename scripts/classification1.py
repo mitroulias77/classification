@@ -19,7 +19,7 @@ from sklearn.pipeline import Pipeline
 from nltk.corpus import stopwords
 from nltk import PorterStemmer
 
-file = path.join('data', 'nsk_all.xlsx')
+file = path.join('C:\Python\classification\data', 'nsk_all.xlsx')
 xl = pd.ExcelFile(file)
 df = xl.parse('nsk_prakseis')
 df.head()
@@ -44,11 +44,21 @@ df1 = df1.join(df[['Τύπος Πράξης','Κατηγορία']])
 df1.groupby(['Κατηγορία']).size()
 
 df1.columns = ['Subject','Type','Category']
-
+'''
 value_counts = df1['Category'].value_counts()
 
 to_remove = value_counts[value_counts <= 250].index
 df1 = df1[~df1.Category.isin(to_remove)]
+df1 = df1.reset_index(drop=True)
+print(df1)
+'''
+value_counts = df1['Category'].value_counts()
+
+to_remove = value_counts[value_counts <= 500].index
+# df1 = df1[~df1.Category.isin(to_remove)]
+for idx, row in df1.iterrows():
+    if row['Category'] in to_remove.tolist():
+        df1.ix[idx, 'Category'] = 'ΔΙΑΦΟΡΑ'
 df1 = df1.reset_index(drop=True)
 print(df1)
 
@@ -155,7 +165,7 @@ model_lstm = Sequential()
 model_lstm.add(Embedding(max_fatures, embed_dim,input_length = X1.shape[1]))
 model_lstm.add(SpatialDropout1D(0.2))
 model_lstm.add(LSTM(lstm_out, dropout=0.2, recurrent_dropout=0.2))
-model_lstm.add(Dense(7,activation='softmax'))
+model_lstm.add(Dense(5,activation='softmax'))
 model_lstm.compile(loss = 'mean_squared_error', optimizer='adam',metrics = ['accuracy'])
 print(model_lstm.summary())
 
