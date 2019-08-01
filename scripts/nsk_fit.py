@@ -195,9 +195,6 @@ loss,acc = model_lstm.evaluate(X1_test, Y1_test, verbose = 1, batch_size = batch
 
 print('Test loss / test accuracy = {:.4f} / {:.4f}'.format(loss, acc))
 
-
-
-'''
 pos_cnt, neg_cnt, pos_correct, neg_correct = 0, 0, 0, 0
 
 for x in range(len(X1_test)):
@@ -216,5 +213,4 @@ for x in range(len(X1_test)):
         pos_cnt += 1
 
 print("Ακρίβεια Αποδεκτών Γνωμοδοτήσεων", pos_correct / pos_cnt * 100, "%")
-print("Ακρίβεια Μη - Αποδεκτών Γνωμοδοτήσεων", neg_correct / neg_cnt * 100, "%")
-'''
+print("Ακρίβεια Γνωμοδοτησεων σε εκρεμμότητα", neg_correct / neg_cnt * 100, "%")
