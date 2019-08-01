@@ -83,7 +83,7 @@ to_remove = value_counts[value_counts <= 500].index
 # df1 = df1[~df1.Category.isin(to_remove)]
 for idx, row in df1.iterrows():
     if row['Category'] in to_remove.tolist():
-        df1.ix[idx, 'Category'] = 'Διαφορα'
+        df1.ix[idx, 'Category'] = 'ΔΙΑΦΟΡΑ'
 df1 = df1.reset_index(drop=True)
 print(df1)
 '''
@@ -146,8 +146,6 @@ plt.title("tf-idf feature vector για κάθε θέμα, προβολή σε 2
           fontdict=dict(fontsize=15))
 plt.legend()
 '''
-
-
 X_train, X_test, y_train, y_test = train_test_split(df1['Subject'], df1['Category'], random_state = 0)
 count_vect = CountVectorizer()
 X_train_counts = count_vect.fit_transform(X_train)
