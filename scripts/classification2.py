@@ -80,7 +80,10 @@ plt.show()
 value_counts = df1['Category'].value_counts()
 
 to_remove = value_counts[value_counts <= 500].index
-df1 = df1[~df1.Category.isin(to_remove)]
+# df1 = df1[~df1.Category.isin(to_remove)]
+for idx, row in df1.iterrows():
+    if row['Category'] in to_remove.tolist():
+        df1.ix[idx, 'Category'] = 'Διαφορα'
 df1 = df1.reset_index(drop=True)
 print(df1)
 '''
@@ -94,6 +97,7 @@ cat_id_df = df1[['Category', 'cat_id']].drop_duplicates().sort_values('cat_id')
 cat_to_id = dict(cat_id_df.values)
 id_to_cat = dict(cat_id_df[['cat_id', 'Category']].values)
 df1.head()
+exit(0)
 
 
 fig = plt.figure(figsize=(8,6))
