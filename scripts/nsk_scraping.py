@@ -12,6 +12,6 @@ response = requests.post(post_url, post_data)
 if response.status_code == 200:
     page = html.fromstring (response.content.decode ('utf-8'))
     Title = page.xpath ('//div[@class="article_text"]/p/strong/a/text()')
-    Concultatory = page.xpath ('//*[@id="resdiv"]/div[2]/div[1]/div[2]/text()')
+    #Concultatory = page.xpath ('//*[@id="resdiv"]/div[2]/div[1]/div[2]/text()')
 
 
