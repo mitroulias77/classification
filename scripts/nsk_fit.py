@@ -17,15 +17,15 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
-file = path.join('C:\Python\classification\data','nsk_from_2000.xlsx')
+file = path.join('E:\Python\classification\data','nsk_from_2000.xlsx')
 xl = pd.ExcelFile(file)
-df = xl.parse('decisions')
+df = xl.parse('decisions2')
 df.head()
 
 corpus = []
 STOPWORDS = set(stopwords.words('greek'))
 #Επεξεργασία ΓΝΩΜΟΔΟΤΗΣΕΩΝ
-for i in range(0, 10157):
+for i in range(0, 9968):
     subject = re.sub(r"\d+", '', df['Concultatory'][i],flags=re.I)
     subject = re.sub(r"[-,()/@\'?\.$%_+\d]", '', df['Concultatory'][i],flags=re.I)
     stemmer = PorterStemmer()
@@ -59,27 +59,27 @@ result['Concultatory'][1]
 
 #Sentiment Classification
 #Θετικές 1,2 , Αρνητικές 3,4
-'''result.dropna(inplace=True)
+result.dropna(inplace=True)
 #result[result['Score'] != 1]
-result['Positivity'] = np.where(result['Status'] < 2, 1, 0)
+result['Positivity'] = np.where(result['Status'] == 1, 1, 0)
 cols = ['Status']
 result.drop(cols, axis=1, inplace=True)
 result.head()
 
 result.groupby('Positivity').size()
-'''
+
 fig = plt.figure(figsize=(8,6))
-result.groupby('Status').Concultatory.count().plot.bar(ylim=0)
+result.groupby('Positivity').Concultatory.count().plot.bar(ylim=0)
 plt.show()
 
 X = result.Concultatory
-y = result.Status
+y = result.Positivity
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state = 0)
-print("Το σύνολο Εκπαίδευσης έχει συνολικά {0} Γνωμοδοτήσεις με {1:.2f}% μη-αποδεκτές, {2:.2f}% αποδεκτές".format(len(X_train),
+print("Το σύνολο Εκπαίδευσης έχει συνολικά {0} Γνωμοδοτήσεις με {1:.2f}% σε εκκρεμότητα, {2:.2f}% αποδεκτές".format(len(X_train),
                                                                              (len(X_train[y_train == 0]) / (len(X_train)*1.))*100,
                                                                         (len(X_train[y_train == 1]) / (len(X_train)*1.))*100))
-print("Το σύνολο Ελέγχου έχει συνολικά {0} Γνωμοδοτήσεις με {1:.2f}% μη-αποδεκτές , {2:.2f}% αποδεκτές".format(len(X_test),
+print("Το σύνολο Ελέγχου έχει συνολικά {0} Γνωμοδοτήσεις με {1:.2f}% σε εκκρεμότητα , {2:.2f}% αποδεκτές".format(len(X_test),
                                                                              (len(X_test[y_test == 0]) / (len(X_test)*1.))*100,
                                                                             (len(X_test[y_test == 1]) / (len(X_test)*1.))*100))
 '''
@@ -141,7 +141,7 @@ tfidf = TfidfVectorizer(max_features=30000,ngram_range=(1, 3))
 
 X_tfidf = tfidf.fit_transform(result.Concultatory)
 
-y = result.Status
+y = result.Positivity
 '''
 chi2score = chi2(X_tfidf, y)[0]
 plt.figure(figsize=(16,8))
@@ -164,7 +164,7 @@ tokenizer.fit_on_texts(result['Concultatory'].values)
 X1 = tokenizer.texts_to_sequences(result['Concultatory'].values)
 X1 = pad_sequences(X1)
 
-Y1 = pd.get_dummies(result['Status']).values
+Y1 = pd.get_dummies(result['Positivity']).values
 #X1.shape[1]
 X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1,Y1, test_size= 0.4 ,random_state = 42)
 print(X1_train.shape,Y1_train.shape)
@@ -181,7 +181,7 @@ model_lstm.add(Embedding(max_features, 100,input_length =X1.shape[1]))
 #model_lstm.add(Conv1D(64, 5, activation='relu'))
 #model_lstm.add(MaxPooling1D(pool_size=4))
 model_lstm.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
-model_lstm.add(Dense(4,activation='softmax'))
+model_lstm.add(Dense(2,activation='softmax'))
 model_lstm.compile(loss ='mean_squared_error', optimizer='adam',metrics = ['accuracy'])
 print(model_lstm.summary())
 

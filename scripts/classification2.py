@@ -48,7 +48,7 @@ df.columns = ['Submission_Date','Subject','Category']
 df.to_excel('NSK_new2.xlsx', engine='xlsxwriter')
 '''
 
-file = path.join('C:\Python\classification\data', 'nsk_all.xlsx')
+file = path.join('E:\\Python\\classification\\data', 'nsk_all.xlsx')
 xl = pd.ExcelFile(file)
 df = xl.parse('nsk_prakseis')
 df.head()
