@@ -23,7 +23,7 @@ if response.status_code != 200:
 
 page_soup = soup(response.text, 'html.parser')
 
-#Εξαγωγή γνωμοδοτήσεων
+#Εξαγωγή γνωμοδοτήσεων!
 concul_containers = page_soup.find_all("div", {"class" : "article_text"})
 #λίστα με της γνωμοδοτήσεις
 concultatories= []
