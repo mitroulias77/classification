@@ -1,7 +1,7 @@
 import re
 import string
 from os import path
-
+import greek_stemmer as gr_stemm
 import matplotlib.pyplot as plt
 from nltk import PorterStemmer
 from nltk.corpus import stopwords
@@ -17,21 +17,26 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
-file = path.join('E:\Python\classification\data','nsk_from_2000.xlsx')
+from classification.utils import remove_emphasis
+
+file = path.join('data','nsk_scrape.xlsx')
 xl = pd.ExcelFile(file)
-df = xl.parse('decisions2')
+df = xl.parse('Sheet1')
 df.head()
 
 corpus = []
 STOPWORDS = set(stopwords.words('greek'))
 #Επεξεργασία ΓΝΩΜΟΔΟΤΗΣΕΩΝ
-for i in range(0, 9968):
+print(df.shape[0])
+for i in range(0, df.shape[0]):
     subject = re.sub(r"\d+", '', df['Concultatory'][i],flags=re.I)
     subject = re.sub(r"[-,()/@\'?\.$%_+\d]", '', df['Concultatory'][i],flags=re.I)
-    stemmer = PorterStemmer()
-    subject = subject.lower().split()
+    stemmer = gr_stemm.GreekStemmer()
+    subject = subject.split()
+    subject = [remove_emphasis(x) for x in subject]
+    subject = [x.upper() for x in subject]
     subject = [stemmer.stem(word) for word in subject if not word in STOPWORDS and len(word)>=3]
-    subject = [word for word in subject if word not in STOPWORDS and len(word)>=3]
+    subject = [x.lower() for x in subject]
     subject = " ".join(subject)
     corpus.append(subject)
     #words_ = word_tokenize(subject)
@@ -166,7 +171,7 @@ X1 = pad_sequences(X1)
 
 Y1 = pd.get_dummies(result['Positivity']).values
 #X1.shape[1]
-X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1,Y1, test_size= 0.4 ,random_state = 42)
+X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1,Y1, test_size= 0.25 ,random_state = 42)
 print(X1_train.shape,Y1_train.shape)
 print(X1_test.shape,Y1_test.shape)
 
