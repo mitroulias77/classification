@@ -54,7 +54,7 @@ print(df1)
 '''
 value_counts = df1['Category'].value_counts()
 
-to_remove = value_counts[value_counts <= 500].index
+to_remove = value_counts[value_counts <= 80].index
 # df1 = df1[~df1.Category.isin(to_remove)]
 for idx, row in df1.iterrows():
     if row['Category'] in to_remove.tolist():

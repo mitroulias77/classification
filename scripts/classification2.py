@@ -79,11 +79,12 @@ plt.show()
 
 value_counts = df1['Category'].value_counts()
 
-to_remove = value_counts[value_counts <= 500].index
+to_remove = value_counts[value_counts <= 250].index
 # df1 = df1[~df1.Category.isin(to_remove)]
 for idx, row in df1.iterrows():
     if row['Category'] in to_remove.tolist():
         df1.ix[idx, 'Category'] = 'ΔΙΑΦΟΡΑ'
+
 df1 = df1.reset_index(drop=True)
 print(df1)
 '''
