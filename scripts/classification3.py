@@ -1,157 +1,126 @@
-import itertools
+'''
+https://medium.com/@hjhuney/implementing-a-random-forest-classification-model-in-python-583891c99652
+
+ΥΛΟΠΟΙΗΣΗ RANDOM FOREST KATΗΓΟΡΙΟΠΟΙΗΤΗ
+'''
+
 import re
+import json
 from os import path
 import nltk
 import pandas as pd
+from pandas import DataFrame,np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_selection import chi2
+import numpy as np
 import matplotlib.pyplot as plt
-from keras_preprocessing.sequence import pad_sequences
-from keras_preprocessing.text import Tokenizer
-from nltk.corpus import stopwords
-from keras.models import Sequential
-from keras.layers import Dense, Embedding, LSTM, GRU, Activation, Dropout, np
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer,TfidfTransformer
 from sklearn.metrics import confusion_matrix
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.svm import LinearSVC
+from sklearn.model_selection import cross_val_score
+import seaborn as sns
+from IPython.display import display
+from nltk.corpus import stopwords
+import greek_stemmer as gr_stemm
+from classification.utils import remove_emphasis
 
-from sklearn.preprocessing import LabelBinarizer
-
-EMBEDDING_DIM = 100
-num_labels = 8
-vocab_size = 15000
-batch_size = 100
-num_epochs = 30
-
-
-file = path.join('E:\\Python\\classification\\data', 'nsk_all.xlsx')
+file = path.join('data', 'nsk_scrape.xlsx')
 xl = pd.ExcelFile(file)
-df = xl.parse('nsk_prakseis')
+df = xl.parse('Sheet1')
 df.head()
 
 corpus = []
 STOPWORDS = set(stopwords.words('greek'))
 
-for i in range(0, 6756):
-    subject = re.sub(r"[,()/@\'?\.$%_+\d]", '', df['Θέμα'][i],flags=re.I)
-    subject = subject.lower()
+print(df.shape[0])
+
+for i in range(0, df.shape[0]):
+    subject = re.sub(r"\d+", '', df['Concultatory'][i],flags=re.I)
+    subject = re.sub(r"[-,()/@\'?\.$%_+\d]", '', df['Concultatory'][i],flags=re.I)
+    stemmer = gr_stemm.GreekStemmer()
     subject = subject.split()
-    ps = nltk.PorterStemmer( )
-    subject = [ps.stem(word) for word in subject if not word in STOPWORDS]
-    subject = ' '.join(subject)
+    subject = [remove_emphasis(x) for x in subject]
+    subject = [x.upper() for x in subject]
+    subject = [stemmer.stem(word) for word in subject if not word in STOPWORDS and len(word)>=3]
+    subject = [x.lower() for x in subject]
+    subject = " ".join(subject)
     corpus.append(subject)
 
-nsk=pd.DataFrame(corpus, columns=['Θέμα'])
-nsk.head()
+X_stem = pd.DataFrame(corpus, columns=['Concultatory'])
 
-nsk = nsk.join(df[['Τύπος Πράξης','Κατηγορία']])
-nsk.groupby(['Κατηγορία']).size()
+X_stem.head()
 
-nsk.columns = ['Subject','Type','Category']
+result = X_stem.join(df[['Title']['Year']['Status']])
+result.groupby(['Status']).size()
+result.head()
+result.columns = ['Concultatory','Title','Year','Status']
+tfidf = TfidfVectorizer()
+tfidf.fit(result['Concultatory'])
 
-fig = plt.figure(figsize=(8,6))
-nsk.groupby('Category').Subject.count().plot.bar(ylim=0)
-plt.show()
+X = tfidf.transform(result['Concultatory'])
+y = df['Status']
 
-value_counts = nsk['Category'].value_counts()
 
-to_remove = value_counts[value_counts <= 250].index
-# nsk = nsk[~nsk.Category.isin(to_remove)]
-for idx, row in nsk.iterrows():
-    if row['Category'] in to_remove.tolist():
-        nsk.ix[idx, 'Category'] = 'ΔΙΑΦΟΡΑ'
+from sklearn.model_selection import train_test_split
+# Δημιουργία train και test συνόλου
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=66)
 
-nsk['cat_id'] = nsk['Category'].factorize()[0]
-cat_id_df = nsk[['Category', 'cat_id']].drop_duplicates().sort_values('cat_id')
-cat_to_id = dict(cat_id_df.values)
-id_to_cat = dict(cat_id_df[['cat_id', 'Category']].values)
-nsk.head()
+#Δημιουργία μοντέλου Random Forest
+from sklearn import model_selection
+rfc = RandomForestClassifier()
+rfc.fit(X_train,y_train)
+# Προβλέψεις κατηγοριοποιητή
+rfc_predict = rfc.predict(X_test)
 
-fig = plt.figure(figsize=(8,6))
-nsk.groupby('Category').Subject.count().plot.bar(ylim=0)
-plt.show()
+#Αξιολογηση του μοντέλου
 
-nsk = nsk.reset_index(drop=True)
-print(nsk)
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import classification_report, confusion_matrix
 
-# lets take 80% data as training and remaining 20% for test.
-train_size = int(len(nsk) * .8)
+rfc_cv_score = cross_val_score(rfc, X, y, cv=10, scoring='roc_auc')
 
-train_concultatories = nsk['Subject'][:train_size]
-train_types = nsk['Type'][:train_size]
-train_category = nsk['Category'][:train_size]
+#Tuning Hyperparameters
+from sklearn.model_selection import RandomizedSearchCV
+# number of trees in random forest
+n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
+# number of features at every split
+max_features = ['auto', 'sqrt']
 
-test_concultatories = nsk['Subject'][train_size:]
-test_types = nsk['Type'][train_size:]
-test_category = nsk['Category'][train_size:]
+# max depth
+max_depth = [int(x) for x in np.linspace(100, 500, num = 11)]
+max_depth.append(None)
+# create random grid
+random_grid = {
+ 'n_estimators': n_estimators,
+ 'max_features': max_features,
+ 'max_depth': max_depth
+ }
+# Random search of parameters
+rfc_random = RandomizedSearchCV(estimator = rfc, param_distributions = random_grid, n_iter = 100, cv = 3, verbose=2, random_state=42, n_jobs = -1)
+# Fit the model
+rfc_random.fit(X_train, y_train)
+# print results
+print(rfc_random.best_params_)
 
-tokenizer = Tokenizer(num_words=vocab_size)
-tokenizer.fit_on_texts(train_concultatories)
 
-X1 = tokenizer.texts_to_sequences(nsk['Subject'].values)
-X1 = pad_sequences(X1)
-
-x_train = tokenizer.texts_to_matrix(train_concultatories)
-x_test = tokenizer.texts_to_matrix(test_concultatories)
-
-encoder = LabelBinarizer()
-encoder.fit(train_category)
-
-y_train = encoder.transform(train_category)
-y_test = encoder.transform(test_category)
-
-#Δημιουργία μοντέλου
-model = Sequential()
-model.add(Dense(512, input_shape=(vocab_size,)))
-model.add(Activation('relu'))
-model.add(Dropout(0.3))
-model.add(Dense(512))
-model.add(Activation('relu'))
-model.add(Dropout(0.3))
-model.add(Dense(num_labels))
-model.add(Activation('softmax'))
-model.summary()
-
-model.compile(loss='categorical_crossentropy',
-              optimizer='adam',
-              metrics=['accuracy'])
-
-num_epochs =10
-batch_size = 128
-history = model.fit(x_train, y_train,
-                    batch_size=batch_size,
-                    epochs=num_epochs,
-                    verbose=2,
-                    validation_split=0.2)
-
-score, acc = model.evaluate(x_test, y_test,
-                       batch_size=batch_size, verbose=2)
-
-print('Test accuracy:', acc)
-
-#another approach using GRU model, takes longer time
-from keras.models import Sequential
-from keras.layers import Dense, Embedding, LSTM, GRU
-from keras.layers.embeddings import Embedding
-
-EMBEDDING_DIM = 100
-
-print('Build model...')
-
-model = Sequential()
-model.add(Embedding(vocab_size, EMBEDDING_DIM, input_length=x_test[i]))
-model.add(GRU(units=32,  dropout=0.2, recurrent_dropout=0.2))
-model.add(Dense(num_labels, activation='softmax'))
-
-# try using different optimizers and different optimizer configs
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-print('Summary of the built model...')
-print(model.summary())
-
-text_labels = encoder.classes_
-
-for i in range(10):
-    prediction = model.predict(np.array([x_test[i]]))
-    predicted_label = text_labels[np.argmax(prediction[0])]
-    #print(test_files_names.iloc[i])
-    print('Actual label:' + test_category.iloc[i])
-    print("Predicted label: " + predicted_label)
+rfc = RandomForestClassifier(n_estimators=1200, max_depth=300, max_features='sqrt')
+rfc.fit(X_train,y_train)
+rfc_predict = rfc.predict(X_test)
+rfc_cv_score = cross_val_score(rfc, X, y, cv=10, scoring='roc_auc')
+print("=== Confusion Matrix ===")
+print(confusion_matrix(y_test, rfc_predict))
+print('\n')
+print("=== Classification Report ===")
+print(classification_report(y_test, rfc_predict))
+print('\n')
+print("=== All AUC Scores ===")
+print(rfc_cv_score)
+print('\n')
+print("=== Mean AUC Score ===")
+print("Mean AUC Score - Random Forest: ", rfc_cv_score.mean())
 
 
