@@ -1,7 +1,6 @@
 import re
 import json
 from os import path
-
 import nltk
 import pandas as pd
 from pandas import DataFrame,np
@@ -20,6 +19,9 @@ from sklearn.model_selection import cross_val_score
 import seaborn as sns
 from IPython.display import display
 from nltk.corpus import stopwords
+import greek_stemmer as gr_stemm
+from classification.utils import remove_emphasis
+
 '''
 file = 'nsk_all.xlsx'
 xl = pd.ExcelFile(file)
@@ -48,7 +50,7 @@ df.columns = ['Submission_Date','Subject','Category']
 df.to_excel('NSK_new2.xlsx', engine='xlsxwriter')
 '''
 
-file = path.join('E:\\Python\\classification\\data', 'nsk_all.xlsx')
+file = path.join('data', 'nsk_all.xlsx')
 xl = pd.ExcelFile(file)
 df = xl.parse('nsk_prakseis')
 df.head()
@@ -56,64 +58,69 @@ df.head()
 corpus = []
 STOPWORDS = set(stopwords.words('greek'))
 
-for i in range(0, 6756):
-    subject = re.sub(r"[,()/@\'?\.$%_+\d]", '', df['Θέμα'][i],flags=re.I)
-    subject = subject.lower()
+print(df.shape[0])
+
+for i in range(0, df.shape[0]):
+    subject = re.sub(r"\d+", '', df['Θέμα'][i],flags=re.I)
+    subject = re.sub(r"[-,()/@\'?\.$%_+\d]", '', df['Θέμα'][i],flags=re.I)
+    stemmer = gr_stemm.GreekStemmer()
     subject = subject.split()
-    ps = nltk.PorterStemmer( )
-    subject = [ps.stem(word) for word in subject if not word in STOPWORDS]
-    subject = ' '.join(subject)
+    subject = [remove_emphasis(x) for x in subject]
+    subject = [x.upper() for x in subject]
+    subject = [stemmer.stem(word) for word in subject if not word in STOPWORDS and len(word)>=3]
+    subject = [x.lower() for x in subject]
+    subject = " ".join(subject)
     corpus.append(subject)
 
-df1=pd.DataFrame(corpus, columns=['Θέμα'])
-df1.head()
+nsk=pd.DataFrame(corpus, columns=['Θέμα'])
+nsk.head()
 
-df1 = df1.join(df[['Τύπος Πράξης','Κατηγορία']])
-df1.groupby(['Κατηγορία']).size()
+nsk = nsk.join(df[['Τύπος Πράξης','Κατηγορία']])
+nsk.groupby(['Κατηγορία']).size()
 
-df1.columns = ['Subject','Type','Category']
+nsk.columns = ['Subject','Type','Category']
 
 fig = plt.figure(figsize=(8,6))
-df1.groupby('Category').Subject.count().plot.bar(ylim=0)
+nsk.groupby('Category').Subject.count().plot.bar(ylim=0)
 plt.show()
 
-value_counts = df1['Category'].value_counts()
+value_counts = nsk['Category'].value_counts()
 
 to_remove = value_counts[value_counts <= 250].index
-# df1 = df1[~df1.Category.isin(to_remove)]
-for idx, row in df1.iterrows():
+# nsk = nsk[~nsk.Category.isin(to_remove)]
+for idx, row in nsk.iterrows():
     if row['Category'] in to_remove.tolist():
-        df1.ix[idx, 'Category'] = 'ΔΙΑΦΟΡΑ'
+        nsk.ix[idx, 'Category'] = 'ΔΙΑΦΟΡΑ'
 
-df1 = df1.reset_index(drop=True)
-print(df1)
+nsk = nsk.reset_index(drop=True)
+print(nsk)
 '''
 to_add = value_counts[value_counts <=300].index
-df1 = df1[~df1.Category.isin(to_add)]
-df1 = df1.reset_index(drop=False)
+nsk = nsk[~nsk.Category.isin(to_add)]
+nsk = nsk.reset_index(drop=False)
 '''
 
-df1['cat_id'] = df1['Category'].factorize()[0]
-cat_id_df = df1[['Category', 'cat_id']].drop_duplicates().sort_values('cat_id')
+nsk['cat_id'] = nsk['Category'].factorize()[0]
+cat_id_df = nsk[['Category', 'cat_id']].drop_duplicates().sort_values('cat_id')
 cat_to_id = dict(cat_id_df.values)
 id_to_cat = dict(cat_id_df[['cat_id', 'Category']].values)
-df1.head()
+nsk.head()
 
 fig = plt.figure(figsize=(8,6))
-df1.groupby('Category').Subject.count().plot.bar(ylim=0)
+nsk.groupby('Category').Subject.count().plot.bar(ylim=0)
 plt.show()
 
 
 tfidf = TfidfVectorizer(sublinear_tf=True, min_df=5, norm='l2', encoding='utf-8', ngram_range=(1, 2), stop_words=STOPWORDS)
-df1.shape
+nsk.shape
 vectorizer = CountVectorizer(analyzer = 'char_wb',
                          tokenizer = None,
                          preprocessor = None,
                          stop_words = STOPWORDS,
                          max_features = 30000)
-features = vectorizer.fit_transform(df1.Subject).toarray()
-features = tfidf.fit_transform(df1.Subject).toarray()
-labels = df1.cat_id
+features = vectorizer.fit_transform(nsk.Subject).toarray()
+features = tfidf.fit_transform(nsk.Subject).toarray()
+labels = nsk.cat_id
 features.shape
 
 N=3
@@ -146,7 +153,7 @@ plt.title("tf-idf feature vector για κάθε θέμα, προβολή σε 2
           fontdict=dict(fontsize=15))
 plt.legend()
 '''
-X_train, X_test, y_train, y_test = train_test_split(df1['Subject'], df1['Category'], random_state = 0)
+X_train, X_test, y_train, y_test = train_test_split(nsk['Subject'], nsk['Category'], random_state = 0)
 count_vect = CountVectorizer()
 X_train_counts = count_vect.fit_transform(X_train)
 tfidf_transformer = TfidfTransformer()
@@ -157,7 +164,7 @@ clf = MultinomialNB().fit(X_train_tfidf, y_train)
 
 #print(clf.predict(vectorizer.transform(["Σχετικά με το εάν συντρέχει νόμιμη περίπτωση για την έγκριση του προϋπολογισμού του κληρ/τος Γ. Α. Β. ειδικώς ως προς τη δαπάνη καταβολής από το κληρ/μα ασφαλιστικών εισφορών."])))
 
-#df1[df['']== 'Αν, ενόψει του από την Υπηρεσία διδόμενου πραγματικού, το Νομικό Συμβούλιο του Κράτους, παρέχει, κατ’ άρθρο 66 παρ. 2 π.δ. 284/1988 τη θετική γνωμοδότησή του για το σχέδιο της 9ης Τροποποίησης της Σύμβασης 007Α/1999, η οποία αφορά στην προμήθεια και εγκατάσταση έξι (6) πυραυλικών συστημάτων μεσαίων και μεγάλων αποστάσεων PATRIOT, καθώς και του απαραίτητου εξοπλισμού και των υπηρεσιών εκπαίδευσης.']
+#nsk[df['']== 'Αν, ενόψει του από την Υπηρεσία διδόμενου πραγματικού, το Νομικό Συμβούλιο του Κράτους, παρέχει, κατ’ άρθρο 66 παρ. 2 π.δ. 284/1988 τη θετική γνωμοδότησή του για το σχέδιο της 9ης Τροποποίησης της Σύμβασης 007Α/1999, η οποία αφορά στην προμήθεια και εγκατάσταση έξι (6) πυραυλικών συστημάτων μεσαίων και μεγάλων αποστάσεων PATRIOT, καθώς και του απαραίτητου εξοπλισμού και των υπηρεσιών εκπαίδευσης.']
 
 models = [
     RandomForestClassifier(n_estimators=200, max_depth=3, random_state=0),
@@ -194,7 +201,7 @@ cv_df.groupby('model_name').accuracy.mean()
 
 model = LinearSVC()#Linear Support Vector Machine Classification.
 
-X_train, X_test, y_train, y_test, indices_train, indices_test = train_test_split(features, labels, df1.index, test_size=0.33, random_state=0)
+X_train, X_test, y_train, y_test, indices_train, indices_test = train_test_split(features, labels, nsk.index, test_size=0.33, random_state=0)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
@@ -211,7 +218,7 @@ for predicted in cat_id_df.cat_id:
     for actual in cat_id_df.cat_id:
         if predicted != actual and conf_mat[actual, predicted] >= 0:
             print("'{}' Προβλέφθηκαν στην κατηγορία '{}' : {} παραδείγματα.".format(id_to_cat[actual], id_to_cat[predicted], conf_mat[actual, predicted]))
-            display(df1.loc[indices_test[(y_test == actual) & (y_pred == predicted)]][['Category', 'Subject']])
+            display(nsk.loc[indices_test[(y_test == actual) & (y_pred == predicted)]][['Category', 'Subject']])
             print('')
 
 model.fit(features, labels)

@@ -1,19 +1,19 @@
 import pandas as pd
 import requests
-from bs4 import BeautifulSoup as soup  # parse html text
-from cffi.backend_ctypes import xrange
+from bs4 import BeautifulSoup as soup
 from lxml import html
 from warnings import warn
 import os
 ###########################################################
 #Εδώ γίνεται το request της σελίδας του νομικού συμβουλίου
-
 columns=['Title','Concultatory','Status','Year']
 
 df_all = pd.DataFrame(columns=columns)
 for status in ['1', '-1']:
     for year in range(2000, 2019):
-        nsk_url = 'http://www.nsk.gr/web/nsk/anazitisi-gnomodoteseon?p_p_id=nskconsulatories_WAR_nskplatformportlet&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&p_p_col_id=column-4&p_p_col_pos=2&p_p_col_count=3'
+        nsk_url = 'http://www.nsk.gr/web/nsk/anazitisi-gnomodoteseon?p_p_' \
+                  'id=nskconsulatories_WAR_nskplatformportlet&p_p_lifecycle=0&p_p_state=normal&p_p_' \
+                  'mode=view&p_p_col_id=column-4&p_p_col_pos=2&p_p_col_count=3'
         post_data = {"_nskconsulatories_WAR_nskplatformportlet_isSearch": "1",
                      "_nskconsulatories_WAR_nskplatformportlet_inputDatefrom": year,
                      "_nskconsulatories_WAR_nskplatformportlet_consulState": status}
@@ -36,7 +36,7 @@ for status in ['1', '-1']:
             article = container.strong.text.strip()
             concultatories.append(article)
 
-        #Εξαγωγή αποφάσεων
+        #Εξαγωγή αποφάσεων τίτλων
         articles = html.fromstring (response.content.decode ('utf-8'))
         decisions = articles.xpath('//*[@id="resdiv"]/div/div[1]/div[2]/text()')
 

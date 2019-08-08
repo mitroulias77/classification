@@ -1,6 +1,6 @@
 import re
 from os import path
-
+import greek_stemmer as gr_stemm
 import matplotlib.pyplot as plt
 import nltk
 from warnings import simplefilter
@@ -19,7 +19,9 @@ from sklearn.pipeline import Pipeline
 from nltk.corpus import stopwords
 from nltk import PorterStemmer
 
-file = path.join('E:\\Python\\classification\\data', 'nsk_all.xlsx')
+from classification.utils import remove_emphasis
+
+file = path.join('data', 'nsk_all.xlsx')
 xl = pd.ExcelFile(file)
 df = xl.parse('nsk_prakseis')
 df.head()
@@ -28,51 +30,54 @@ df.head()
 STOPWORDS = set(stopwords.words('greek'))
 corpus = []
 
-for i in range(0, 6756):
-    subject = re.sub(r"[,()/@\'?\.$%_+\d]", '', df['Θέμα'][i],flags=re.I)
-    subject = subject.lower()
+for i in range(0, df.shape[0]):
+    subject = re.sub(r"\d+", '', df['Θέμα'][i],flags=re.I)
+    subject = re.sub(r"[-,()/@\'?\.$%_+\d]", '', df['Θέμα'][i],flags=re.I)
+    stemmer = gr_stemm.GreekStemmer()
     subject = subject.split()
-    ps = PorterStemmer()
-    subject = [ps.stem(word) for word in subject if not word in STOPWORDS]
-    subject = ' '.join(subject)
+    subject = [remove_emphasis(x) for x in subject]
+    subject = [x.upper() for x in subject]
+    subject = [stemmer.stem(word) for word in subject if not word in STOPWORDS and len(word)>=3]
+    subject = [x.lower() for x in subject]
+    subject = " ".join(subject)
     corpus.append(subject)
 
-df1=pd.DataFrame(corpus, columns=['Θέμα'])
-df1.head()
+nsk=pd.DataFrame(corpus, columns=['Θέμα'])
+nsk.head()
 
-df1 = df1.join(df[['Τύπος Πράξης','Κατηγορία']])
-df1.groupby(['Κατηγορία']).size()
+nsk = nsk.join(df[['Τύπος Πράξης','Κατηγορία']])
+nsk.groupby(['Κατηγορία']).size()
 
-df1.columns = ['Subject','Type','Category']
+nsk.columns = ['Subject','Type','Category']
 '''
-value_counts = df1['Category'].value_counts()
+value_counts = nsk['Category'].value_counts()
 
 to_remove = value_counts[value_counts <= 250].index
-df1 = df1[~df1.Category.isin(to_remove)]
-df1 = df1.reset_index(drop=True)
-print(df1)
+nsk = nsk[~nsk.Category.isin(to_remove)]
+nsk = nsk.reset_index(drop=True)
+print(nsk)
 '''
-value_counts = df1['Category'].value_counts()
+value_counts = nsk['Category'].value_counts()
 
 to_remove = value_counts[value_counts <= 80].index
-# df1 = df1[~df1.Category.isin(to_remove)]
-for idx, row in df1.iterrows():
+# nsk = nsk[~nsk.Category.isin(to_remove)]
+for idx, row in nsk.iterrows():
     if row['Category'] in to_remove.tolist():
-        df1.ix[idx, 'Category'] = 'ΔΙΑΦΟΡΑ'
-df1 = df1.reset_index(drop=True)
-print(df1)
+        nsk.ix[idx, 'Category'] = 'ΔΙΑΦΟΡΑ'
+nsk = nsk.reset_index(drop=True)
+print(nsk)
 
 fig = plt.figure(figsize=(8,6))
-df1.groupby('Category').Subject.count().plot.bar(ylim=0)
+nsk.groupby('Category').Subject.count().plot.bar(ylim=0)
 plt.show()
 
 
 tfidf = TfidfVectorizer(sublinear_tf=True, min_df=5, norm='l2', encoding='utf-8', ngram_range=(1, 2), stop_words=stopwords.words('greek'))
-features = tfidf.fit_transform(df1.Category).toarray()
-tfidf.fit(df1['Category'])
+features = tfidf.fit_transform(nsk.Category).toarray()
+tfidf.fit(nsk['Category'])
 
-X = df1.Subject
-y = df1.Category
+X = nsk.Subject
+y = nsk.Category
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state = 0)
 
 print("\n\nΤο σύνολο Εκπαίδευσης έχει συνολικά {0} θέματα που είναι το {1:.2f}% "
@@ -132,8 +137,8 @@ print("Ακρίβεια Random Forest Κατηγοριοποιητή: %0.2f (+/-
 #X^2 Επιλογή χαρακτηριστικών
 
 tfidf2 = TfidfVectorizer(max_features=30000,ngram_range=(1, 3))
-X_tfidf = tfidf.fit_transform(df1.Subject)
-y = df1.Category
+X_tfidf = tfidf.fit_transform(nsk.Subject)
+y = nsk.Category
 Xi2score = chi2(X_tfidf, y)[0]
 
 plt.figure(figsize=(8,6))
@@ -149,24 +154,26 @@ plt.xlabel('$\chi^2$')
 plt.show()
 
 #lstm
-max_fatures = 30000
-tokenizer = Tokenizer(num_words=max_fatures, split=' ')
-tokenizer.fit_on_texts(df1['Subject'].values)
-X1 = tokenizer.texts_to_sequences(df1['Subject'].values)
+max_features = 30000
+tokenizer = Tokenizer(num_words=max_features, split=' ')
+tokenizer.fit_on_texts(nsk['Subject'].values)
+X1 = tokenizer.texts_to_sequences(nsk['Subject'].values)
 X1 = pad_sequences(X1)
 
-Y1 = pd.get_dummies(df1['Category']).values
-X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1,Y1, random_state = 42)
+Y1 = pd.get_dummies(nsk['Category']).values
+X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1,Y1, test_size=0.25, random_state = 42)
 print(X1_train.shape,Y1_train.shape)
 print(X1_test.shape,Y1_test.shape)
+
 embed_dim = 150
 lstm_out = 200
+
 model_lstm = Sequential()
-model_lstm.add(Embedding(max_fatures, embed_dim,input_length = X1.shape[1]))
+model_lstm.add(Embedding(max_features, embed_dim,input_length = X1.shape[1]))
 model_lstm.add(SpatialDropout1D(0.2))
 model_lstm.add(LSTM(lstm_out, dropout=0.2, recurrent_dropout=0.2))
-model_lstm.add(Dense(5,activation='softmax'))
-model_lstm.compile(loss = 'mean_squared_error', optimizer='adam',metrics = ['accuracy'])
+model_lstm.add(Dense(11,activation='softmax'))
+model_lstm.compile(loss = 'categorical_crossentropy', optimizer='adam',metrics = ['accuracy'])
 print(model_lstm.summary())
 
 batch_size = 32

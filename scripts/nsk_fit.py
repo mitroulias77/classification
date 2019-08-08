@@ -66,7 +66,7 @@ result['Concultatory'][1]
 #Θετικές 1,2 , Αρνητικές 3,4
 result.dropna(inplace=True)
 #result[result['Score'] != 1]
-result['Positivity'] = np.where(result['Status'] == 1, 1, 0)
+result['Positivity'] = np.where(result['Status'] == 1, 1, -1)
 cols = ['Status']
 result.drop(cols, axis=1, inplace=True)
 result.head()
@@ -80,7 +80,7 @@ plt.show()
 X = result.Concultatory
 y = result.Positivity
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state = 0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state = 0)
 print("Το σύνολο Εκπαίδευσης έχει συνολικά {0} Γνωμοδοτήσεις με {1:.2f}% σε εκκρεμότητα, {2:.2f}% αποδεκτές".format(len(X_train),
                                                                              (len(X_train[y_train == 0]) / (len(X_train)*1.))*100,
                                                                         (len(X_train[y_train == 1]) / (len(X_train)*1.))*100))
@@ -94,6 +94,7 @@ status_to_id = dict(status_id_df.values)
 id_to_status = dict(status_id_df[['status_id', 'Positivity']].values)
 result.head()
 '''
+
 def accuracy_summary(pipeline, X_train, y_train, X_test, y_test):
     sentiment_fit = pipeline.fit(X_train, y_train)
     y_pred = sentiment_fit.predict(X_test)
@@ -137,30 +138,14 @@ pipeline = Pipeline([
     ])
 #sentiment_fit = pipeline.fit(X_train, y_train)
 #y_pred = sentiment_fit.predict(X_test)
-#print(classification_report(y_test, y_pred, target_names=['Μη-Αποδεκτές','Αποδεκτές']))
-
-
-from sklearn.feature_selection import chi2
+#print(classification_report(y_test, y_pred, target_names=['Εκκρεμούν','Αποδεκτές']))
 
 tfidf = TfidfVectorizer(max_features=30000,ngram_range=(1, 3))
 
 X_tfidf = tfidf.fit_transform(result.Concultatory)
 
 y = result.Positivity
-'''
-chi2score = chi2(X_tfidf, y)[0]
-plt.figure(figsize=(16,8))
-scores = list(zip(tfidf.get_feature_names(), chi2score))
-chi2 = sorted(scores, key=lambda x:x[1])
-topchi2 = list(zip(*chi2[-20:]))
-x = range(len(topchi2[1]))
-labels = topchi2[0]
-plt.barh(x,topchi2[1], align='center', alpha=0.5)
-plt.plot(topchi2[1], x, '-o', markersize=5, alpha=0.8)
-plt.yticks(x, labels)
-plt.xlabel('$\chi^2$')
-plt.show()
-'''
+
 
 #LSTM FRAMEWORK
 max_features = 20000
@@ -187,12 +172,12 @@ model_lstm.add(Embedding(max_features, 100,input_length =X1.shape[1]))
 #model_lstm.add(MaxPooling1D(pool_size=4))
 model_lstm.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
 model_lstm.add(Dense(2,activation='softmax'))
-model_lstm.compile(loss ='mean_squared_error', optimizer='adam',metrics = ['accuracy'])
+model_lstm.compile(loss ='categorical_crossentropy', optimizer='adam',metrics = ['accuracy'])
 print(model_lstm.summary())
 
 #Εκπαίδευση  και αξιολόγηση του μοντέλου
 batch_size = 32
-model_lstm.fit(X1_train,Y1_train,epochs = 5,batch_size=batch_size, verbose = 2, validation_data=(X1_test,Y1_test))
+model_lstm.fit(X1_train,Y1_train,epochs = 25,batch_size=batch_size, verbose = 2, validation_data=(X1_test,Y1_test))
 
 y_pred = model_lstm.predict(X1_test)
 
