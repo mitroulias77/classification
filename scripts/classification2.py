@@ -22,34 +22,6 @@ from nltk.corpus import stopwords
 import greek_stemmer as gr_stemm
 from classification.utils import remove_emphasis
 
-'''
-file = 'nsk_all.xlsx'
-xl = pd.ExcelFile(file)
-df = xl.parse('nsk_prakseis')
-df.head()
-'''
-'''
-with open('E:\\Python\\Classification\\Classification@NSK\\nsk_decisions.json',encoding='utf-8',errors='ignore') as output_file:
-    data = json.load(output_file, strict=False)
-
-for decisions in data['decisionResultList']:
-    print(decisions)
-
-for decisions in data['decisionResultList']:
-    del(decisions['organizationUid'],decisions['protocolNumber'],decisions['issueDate'],decisions['organizationLabel'],
-        decisions['documentUrl'],decisions['decisionTypeUid'], decisions['ada'])
-try:
-    with open('new_nsk.json',encoding='utf-8', mode='w', errors='ignore') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-except OSError:
-    print("Λάθος στο αρχείο!")
-
-df = DataFrame(data['decisionResultList'])
-df.columns = ['Submission_Date','Subject','Category']
-#Εγγραφή αρχείου df σε excel
-df.to_excel('NSK_new2.xlsx', engine='xlsxwriter')
-'''
-
 file = path.join('data', 'nsk_all.xlsx')
 xl = pd.ExcelFile(file)
 df = xl.parse('nsk_prakseis')
@@ -110,7 +82,6 @@ fig = plt.figure(figsize=(8,6))
 nsk.groupby('Category').Subject.count().plot.bar(ylim=0)
 plt.show()
 
-
 tfidf = TfidfVectorizer(sublinear_tf=True, min_df=5, norm='l2', encoding='utf-8', ngram_range=(1, 2), stop_words=STOPWORDS)
 nsk.shape
 vectorizer = CountVectorizer(analyzer = 'char_wb',
@@ -154,7 +125,7 @@ plt.title("tf-idf feature vector για κάθε θέμα, προβολή σε 2
 plt.legend()
 '''
 X_train, X_test, y_train, y_test = train_test_split(nsk['Subject'], nsk['Category'], random_state = 0)
-count_vect = CountVectorizer()
+count_vect = CountVectorizer(stop_words=STOPWORDS)
 X_train_counts = count_vect.fit_transform(X_train)
 tfidf_transformer = TfidfTransformer()
 X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
