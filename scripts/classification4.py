@@ -106,7 +106,7 @@ rfc_random.fit(X_train, y_train)
 # print results
 print(rfc_random.best_params_)
 
-#uplo
+
 rfc = RandomForestClassifier(n_estimators=600, max_depth=300, max_features='sqrt')
 rfc.fit(X_train,y_train)
 rfc_predict = rfc.predict(X_test)
