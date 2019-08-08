@@ -5,25 +5,10 @@ https://medium.com/@hjhuney/implementing-a-random-forest-classification-model-in
 '''
 
 import re
-import json
 from os import path
-import nltk
 import pandas as pd
-from pandas import DataFrame,np
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.feature_selection import chi2
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import CountVectorizer,TfidfTransformer
-from sklearn.metrics import confusion_matrix
-from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.svm import LinearSVC
-from sklearn.model_selection import cross_val_score
-import seaborn as sns
-from IPython.display import display
 from nltk.corpus import stopwords
 import greek_stemmer as gr_stemm
 from classification.utils import remove_emphasis
@@ -82,7 +67,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import classification_report, confusion_matrix
 
 rfc_cv_score = cross_val_score(rfc, X, y, cv=10, scoring='roc_auc')
-
+'''
 #Tuning Hyperparameters
 from sklearn.model_selection import RandomizedSearchCV
 # number of trees in random forest
@@ -105,9 +90,9 @@ rfc_random = RandomizedSearchCV(estimator = rfc, param_distributions = random_gr
 rfc_random.fit(X_train, y_train)
 # print results
 print(rfc_random.best_params_)
+'''
 
-
-rfc = RandomForestClassifier(n_estimators=600, max_depth=300, max_features='sqrt')
+rfc = RandomForestClassifier(n_estimators=1200, max_depth=140, max_features='sqrt')
 rfc.fit(X_train,y_train)
 rfc_predict = rfc.predict(X_test)
 rfc_cv_score = cross_val_score(rfc, X, y, cv=10, scoring='roc_auc')
