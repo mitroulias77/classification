@@ -2,7 +2,6 @@ import re
 from os import path
 import greek_stemmer as gr_stemm
 import matplotlib.pyplot as plt
-import nltk
 from warnings import simplefilter
 from keras import Sequential
 from keras.layers import Embedding, LSTM, Dense, SpatialDropout1D
@@ -17,8 +16,6 @@ from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.pipeline import Pipeline
 from nltk.corpus import stopwords
-from nltk import PorterStemmer
-
 from classification.utils import remove_emphasis
 
 file = path.join('data', 'nsk_all.xlsx')
@@ -59,7 +56,7 @@ print(nsk)
 '''
 value_counts = nsk['Category'].value_counts()
 
-to_remove = value_counts[value_counts <= 80].index
+to_remove = value_counts[value_counts <= 130].index
 # nsk = nsk[~nsk.Category.isin(to_remove)]
 for idx, row in nsk.iterrows():
     if row['Category'] in to_remove.tolist():
@@ -71,10 +68,9 @@ fig = plt.figure(figsize=(8,6))
 nsk.groupby('Category').Subject.count().plot.bar(ylim=0)
 plt.show()
 
-
 tfidf = TfidfVectorizer(sublinear_tf=True, min_df=5, norm='l2', encoding='utf-8', ngram_range=(1, 2), stop_words=stopwords.words('greek'))
-features = tfidf.fit_transform(nsk.Category).toarray()
-tfidf.fit(nsk['Category'])
+features = tfidf.fit_transform(nsk.Subject).toarray()
+tfidf.fit(nsk['Subject'])
 
 X = nsk.Subject
 y = nsk.Category
@@ -172,12 +168,12 @@ model_lstm = Sequential()
 model_lstm.add(Embedding(max_features, embed_dim,input_length = X1.shape[1]))
 model_lstm.add(SpatialDropout1D(0.2))
 model_lstm.add(LSTM(lstm_out, dropout=0.2, recurrent_dropout=0.2))
-model_lstm.add(Dense(11,activation='softmax'))
+model_lstm.add(Dense(10,activation='softmax'))
 model_lstm.compile(loss = 'categorical_crossentropy', optimizer='adam',metrics = ['accuracy'])
 print(model_lstm.summary())
 
 batch_size = 32
-model_lstm.fit(X1_train, Y1_train, epochs = 5, batch_size=batch_size, verbose = 2,  validation_data=(X1_test,Y1_test))
+model_lstm.fit(X1_train, Y1_train, epochs = 2, batch_size=batch_size, verbose = 2,  validation_data=(X1_test,Y1_test))
 
 y_pred = model_lstm.predict(X1_test)
 loss,acc = model_lstm.evaluate(X1_test , Y1_test, verbose = 1, batch_size = batch_size)
