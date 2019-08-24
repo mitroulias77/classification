@@ -49,6 +49,28 @@ for status in ['1', '-1']:
         for char in decisions[:]:
             if char in punctuation:
                 decisions.remove(char)
+
+        # Εξαγωγή κατηγοριών από τα λήμματα-keywords
+
+        #keywords = articles.xpath('//*[@id="resdiv"]/div/div[1]/div[2]/p[2]/strong[1]')
+        keywords = articles.xpath('//div[@class="article_text"]/p/text()')
+        #keywords[3].strip().split (',')
+
+        keywords = [x.strip() for x in keywords]
+        keywords = [x for x in keywords if len(x)>0]
+        keywords = [x for x in keywords if ',' in x]
+        keywords = [x for i, x in enumerate(keywords) if i%2==0]
+
+        punctuation = '"'
+        for i, word in enumerate(keywords):
+            keywords[i] = word.strip()
+        for chr in keywords[:]:
+            if chr in punctuation:
+                keywords.remove(chr)
+
+        keywords_list = [x.split(',') for x in keywords]
+
+
         ###############################################################
 
         #DATA-FRAME και export σε xlsx
