@@ -60,7 +60,7 @@ y = df['Status']
 
 
 from sklearn.feature_extraction.text import TfidfVectorizer
-tfidfconverter = TfidfVectorizer(max_features=2500, min_df=15, max_df=0.7, stop_words=STOPWORDS)
+tfidfconverter = TfidfVectorizer(max_features=2500, min_df=5, max_df=0.7, stop_words=STOPWORDS)
 X = tfidfconverter.fit_transform(X['Concultatory']).toarray()
 
 from sklearn.model_selection import train_test_split
