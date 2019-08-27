@@ -18,10 +18,19 @@ from sklearn.pipeline import Pipeline
 from nltk.corpus import stopwords
 from classification.utils import remove_emphasis
 
-file = path.join('data', 'nsk_all.xlsx')
+from os import path
+import pandas as pd
+file = path.join('data', 'nsk_scrape.xlsx')
 xl = pd.ExcelFile(file)
-df = xl.parse('nsk_prakseis')
+df = xl.parse('Sheet1')
 df.head()
+
+nsk_list= df['Category'].values.tolist()
+nsk_list = [x.split()[0] for x in nsk_list]
+#nsk_list = list(set(nsk_list))
+
+
+df['Label'] = pd.Series(nsk_list)
 
 #nltk.download('stopwords')
 STOPWORDS = set(stopwords.words('greek'))
@@ -62,7 +71,7 @@ for idx, row in nsk.iterrows():
     if row['Category'] in to_remove.tolist():
         nsk.ix[idx, 'Category'] = 'ΔΙΑΦΟΡΑ'
 nsk = nsk.reset_index(drop=True)
-print(nsk)
+
 
 fig = plt.figure(figsize=(8,6))
 nsk.groupby('Category').Subject.count().plot.bar(ylim=0)
@@ -168,7 +177,7 @@ model_lstm = Sequential()
 model_lstm.add(Embedding(max_features, embed_dim,input_length = X1.shape[1]))
 model_lstm.add(SpatialDropout1D(0.2))
 model_lstm.add(LSTM(lstm_out, dropout=0.2, recurrent_dropout=0.2))
-model_lstm.add(Dense(10,activation='softmax'))
+model_lstm.add(Dense(15,activation='softmax'))
 model_lstm.compile(loss = 'categorical_crossentropy', optimizer='adam',metrics = ['accuracy'])
 print(model_lstm.summary())
 
