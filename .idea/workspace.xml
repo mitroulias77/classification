@@ -2,10 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="aa59b5c7-6b75-4516-98d2-831c0c944184" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/scripts/multilabelled.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/data_list.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/nsk_scrape.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/data/nsk_scrape.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/classification3.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/classification3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/classification1.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/classification1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/multilabelled.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/multilabelled.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/scrape_nsk.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/scrape_nsk.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -14,28 +15,35 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="DockManager">
+    <window id="2">
+      <content type="file-editors">
+        <state>
+          <leaf>
+            <file pinned="false" current-in-tab="true">
+              <entry file="file://$PROJECT_DIR$/scripts/multilabelled.py">
+                <provider selected="true" editor-type-id="text-editor">
+                  <state relative-caret-position="-1034">
+                    <caret line="70" column="25" lean-forward="true" selection-start-line="70" selection-start-column="25" selection-end-line="70" selection-end-column="25" />
+                    <folding>
+                      <element signature="e#0#19#0" expanded="true" />
+                    </folding>
+                  </state>
+                </provider>
+              </entry>
+            </file>
+          </leaf>
+        </state>
+      </content>
+    </window>
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/scripts/scrape_nsk.py">
+        <entry file="file://$PROJECT_DIR$/scripts/classification1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="88">
-              <caret line="61" column="25" lean-forward="true" selection-start-line="61" selection-start-column="25" selection-end-line="61" selection-end-column="25" />
-              <folding>
-                <element signature="e#0#19#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/scripts/multilabelled.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret selection-end-line="29" selection-end-column="40" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="-1475">
+              <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
             </state>
           </provider>
         </entry>
@@ -71,16 +79,17 @@
         <option value="$PROJECT_DIR$/classification/utils.py" />
         <option value="$PROJECT_DIR$/scripts/classification2.py" />
         <option value="$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/greek_stemmer/__init__.py" />
-        <option value="$PROJECT_DIR$/scripts/classification1.py" />
         <option value="$PROJECT_DIR$/scripts/classification3.py" />
         <option value="$PROJECT_DIR$/scripts/classification4.py" />
+        <option value="$PROJECT_DIR$/scripts/data_list.py" />
         <option value="$PROJECT_DIR$/scripts/scrape_nsk.py" />
+        <option value="$PROJECT_DIR$/scripts/classification1.py" />
         <option value="$PROJECT_DIR$/scripts/multilabelled.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-1288" />
+    <option name="x" value="-1338" />
     <option name="y" value="-5" />
     <option name="width" value="1296" />
     <option name="height" value="1000" />
@@ -90,6 +99,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -105,19 +115,12 @@
             <path>
               <item name="classification" type="b2602c69:ProjectViewProjectNode" />
               <item name="classification" type="462c0819:PsiDirectoryNode" />
-              <item name="data" type="462c0819:PsiDirectoryNode" />
-              <item name="files" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="classification" type="b2602c69:ProjectViewProjectNode" />
-              <item name="classification" type="462c0819:PsiDirectoryNode" />
               <item name="scripts" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -137,7 +140,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.scrape_nsk">
+  <component name="RunManager" selected="Python.multilabelled">
     <configuration name="classification2" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="classification" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -252,8 +255,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.scrape_nsk" />
         <item itemvalue="Python.multilabelled" />
+        <item itemvalue="Python.scrape_nsk" />
         <item itemvalue="Python.classification4" />
         <item itemvalue="Python.classification3" />
         <item itemvalue="Python.classification2" />
@@ -334,7 +337,21 @@
       <option name="project" value="LOCAL" />
       <updated>1566631875045</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="scrape update!!!with errors">
+      <created>1566759711563</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1566759711563</updated>
+    </task>
+    <task id="LOCAL-00011" summary="scrape update!!!with errors">
+      <created>1566759736083</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1566759736083</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TodoView">
@@ -348,20 +365,21 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1288" y="-5" width="1296" height="1000" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2200957" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23046252" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Debug" order="2" weight="0.49289098" />
+      <window_info anchor="bottom" id="Debug" order="2" weight="0.40758294" />
       <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="5" weight="0.32907662" />
       <window_info anchor="bottom" id="Terminal" order="6" weight="0.32819906" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50079745" side_tool="true" weight="0.32819906" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="8" visible="true" weight="0.5580569" />
-      <window_info anchor="bottom" id="Run" order="9" sideWeight="0.49920127" weight="0.45971563" />
+      <window_info anchor="bottom" id="Python Console" order="8" weight="0.3364929" />
+      <window_info anchor="bottom" id="Run" order="9" sideWeight="0.49920127" visible="true" weight="0.47985783" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.49920255" weight="0.32819906" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -378,7 +396,8 @@
     <MESSAGE value="utils 2" />
     <MESSAGE value="utils 3" />
     <MESSAGE value="scrape update" />
-    <option name="LAST_COMMIT_MESSAGE" value="scrape update" />
+    <MESSAGE value="scrape update!!!with errors" />
+    <option name="LAST_COMMIT_MESSAGE" value="scrape update!!!with errors" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -509,16 +528,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/classification1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="415">
-          <caret line="30" column="21" selection-start-line="30" selection-start-column="21" selection-end-line="30" selection-end-column="57" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/classification2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="242">
@@ -529,20 +538,58 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/multilabelled.py">
+    <entry file="file://$PROJECT_DIR$/data/labels.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/data_list.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret selection-end-line="29" selection-end-column="40" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="467">
+          <caret line="123" column="42" lean-forward="true" selection-start-line="123" selection-start-column="17" selection-end-line="123" selection-end-column="42" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/scrape_nsk.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="61" column="25" lean-forward="true" selection-start-line="61" selection-start-column="25" selection-end-line="61" selection-end-column="25" />
+        <state relative-caret-position="241">
+          <caret line="97" column="8" selection-start-line="97" selection-start-column="8" selection-end-line="97" selection-end-column="69" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/pandas/core/common.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="222">
+          <caret line="409" selection-start-line="409" selection-end-line="409" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/pandas/core/indexing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="147">
+          <caret line="2564" selection-start-line="2564" selection-end-line="2564" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/pandas/core/generic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="156">
+          <caret line="3971" selection-start-line="3971" selection-end-line="3971" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/classification1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1475">
+          <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/multilabelled.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1034">
+          <caret line="70" column="25" lean-forward="true" selection-start-line="70" selection-start-column="25" selection-end-line="70" selection-end-column="25" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>

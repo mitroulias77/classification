@@ -172,7 +172,7 @@ print(X1_test.shape,Y1_test.shape)
 
 embed_dim = 150
 lstm_out = 200
-
+#
 model_lstm = Sequential()
 model_lstm.add(Embedding(max_features, embed_dim,input_length = X1.shape[1]))
 model_lstm.add(SpatialDropout1D(0.2))
