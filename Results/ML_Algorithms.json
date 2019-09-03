@@ -1,0 +1,18 @@
+{
+  "Classifiers": [
+    {
+      "Preprocessing" : "No",
+      "RandomForest" : "0.5961553738546663",
+      "SVM" : "0.6363826628317335",
+      "MultinomialNaiveBayes" : "",
+      "LSTM" : ""
+    },
+    {
+      "Preprocessing": "Yes",
+      "RandomForest": "0.6422130166086554",
+      "SVM": "0.6647898149065659",
+      "MultinomialNaiveBayes": "",
+      "LSTM": ""
+    }
+  ]
+}

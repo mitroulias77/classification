@@ -22,19 +22,25 @@ from nltk.corpus import stopwords
 import greek_stemmer as gr_stemm
 from classification.utils import remove_emphasis
 
-file = path.join('data', 'nsk_all.xlsx')
+file = path.join('data', 'nsk_multiclass.xlsx')
 xl = pd.ExcelFile(file)
-df = xl.parse('nsk_prakseis')
+df = xl.parse('Sheet1')
 df.head()
 
-corpus = []
-STOPWORDS = set(stopwords.words('greek'))
+nsk_list = df['Category'].values.tolist()
+nsk_list = df['Category'].astype(str)
+nsk_list = [x.split(',')[0] for x in nsk_list]
 
-print(df.shape[0])
+import matplotlib.pyplot as plt
+df['Label'] = pd.Series(nsk_list)
+STOPWORDS = set(stopwords.words('greek'))
+'''
+
+corpus = []
 
 for i in range(0, df.shape[0]):
-    subject = re.sub(r"\d+", '', df['Θέμα'][i],flags=re.I)
-    subject = re.sub(r"[-,()/@\'?\.$%_+\d]", '', df['Θέμα'][i],flags=re.I)
+    subject = re.sub(r"\d+", '', df['Concultatory'][i],flags=re.I)
+    subject = re.sub(r"[-,()/@\'?\.$%_+\d]", '', df['Concultatory'][i],flags=re.I)
     stemmer = gr_stemm.GreekStemmer()
     subject = subject.split()
     subject = [remove_emphasis(x) for x in subject]
@@ -43,34 +49,18 @@ for i in range(0, df.shape[0]):
     subject = [x.lower() for x in subject]
     subject = " ".join(subject)
     corpus.append(subject)
-
-nsk=pd.DataFrame(corpus, columns=['Θέμα'])
+'''
+nsk=pd.DataFrame(df, columns=['Concultatory'])
+nsk['Category'] = df['Label']
 nsk.head()
 
-nsk = nsk.join(df[['Τύπος Πράξης','Κατηγορία']])
-nsk.groupby(['Κατηγορία']).size()
-
-nsk.columns = ['Subject','Type','Category']
-
-fig = plt.figure(figsize=(8,6))
-nsk.groupby('Category').Subject.count().plot.bar(ylim=0)
-plt.show()
-
 value_counts = nsk['Category'].value_counts()
-
-to_remove = value_counts[value_counts <= 250].index
-# nsk = nsk[~nsk.Category.isin(to_remove)]
-for idx, row in nsk.iterrows():
-    if row['Category'] in to_remove.tolist():
-        nsk.ix[idx, 'Category'] = 'ΔΙΑΦΟΡΑ'
-
+to_remove = value_counts[value_counts < 50].index
+nsk = nsk[~nsk.Category.isin(to_remove)]
 nsk = nsk.reset_index(drop=True)
-print(nsk)
-'''
-to_add = value_counts[value_counts <=300].index
-nsk = nsk[~nsk.Category.isin(to_add)]
-nsk = nsk.reset_index(drop=False)
-'''
+#to_add = value_counts[value_counts <=300].index
+#nsk = nsk[~nsk.Category.isin(to_add)]
+#nsk = nsk.reset_index(drop=False)
 
 nsk['cat_id'] = nsk['Category'].factorize()[0]
 cat_id_df = nsk[['Category', 'cat_id']].drop_duplicates().sort_values('cat_id')
@@ -79,7 +69,7 @@ id_to_cat = dict(cat_id_df[['cat_id', 'Category']].values)
 nsk.head()
 
 fig = plt.figure(figsize=(8,6))
-nsk.groupby('Category').Subject.count().plot.bar(ylim=0)
+nsk.groupby('Category').Concultatory.count().plot.bar(ylim=0)
 plt.show()
 
 tfidf = TfidfVectorizer(sublinear_tf=True, min_df=5, norm='l2', encoding='utf-8', ngram_range=(1, 2), stop_words=STOPWORDS)
@@ -89,8 +79,8 @@ vectorizer = CountVectorizer(analyzer = 'char_wb',
                          preprocessor = None,
                          stop_words = STOPWORDS,
                          max_features = 30000)
-features = vectorizer.fit_transform(nsk.Subject).toarray()
-features = tfidf.fit_transform(nsk.Subject).toarray()
+features = vectorizer.fit_transform(nsk.Concultatory).toarray()
+features = tfidf.fit_transform(nsk.Concultatory).toarray()
 labels = nsk.cat_id
 features.shape
 
@@ -105,26 +95,7 @@ for Category, cat_id in sorted(cat_to_id.items()):
   print("  . Unigrams καλύτερης συσχέτισης:\n       . {}".format('\n       . '.join(unigrams[-N:])))
   print("  . Βigrams καλύτερης συσχέτησης:\n       . {}".format('\n       . '.join(bigrams[-N:])))
 
-'''
-from sklearn.manifold import TSNE
-
-# Sampling a subset of our dataset because t-SNE is computationally expensive
-SAMPLE_SIZE = int(len(features) * 0.3)
-np.random.seed(0)
-indices = np.random.choice(range(len(features)), size=SAMPLE_SIZE, replace=False)
-projected_features = TSNE(n_components=2, random_state=0).fit_transform(features[indices])
-
-colors = ['pink', 'green', 'midnightblue', 'orange']#'cyan', 'darkmagenta', 'red'
-
-
-for category, category_id in sorted(cat_to_id.items()):
-    points = projected_features[(labels[indices] == category_id).values]
-    plt.scatter(points[:, 0], points[:, 1], s=30, c=colors[category_id], label=category)
-plt.title("tf-idf feature vector για κάθε θέμα, προβολή σε 2 διαστάσεις.",
-          fontdict=dict(fontsize=15))
-plt.legend()
-'''
-X_train, X_test, y_train, y_test = train_test_split(nsk['Subject'], nsk['Category'], random_state = 0)
+X_train, X_test, y_train, y_test = train_test_split(nsk['Concultatory'], nsk['Category'], random_state = 0)
 count_vect = CountVectorizer(stop_words=STOPWORDS)
 X_train_counts = count_vect.fit_transform(X_train)
 tfidf_transformer = TfidfTransformer()
@@ -189,7 +160,7 @@ for predicted in cat_id_df.cat_id:
     for actual in cat_id_df.cat_id:
         if predicted != actual and conf_mat[actual, predicted] >= 0:
             print("'{}' Προβλέφθηκαν στην κατηγορία '{}' : {} παραδείγματα.".format(id_to_cat[actual], id_to_cat[predicted], conf_mat[actual, predicted]))
-            display(nsk.loc[indices_test[(y_test == actual) & (y_pred == predicted)]][['Category', 'Subject']])
+            display(nsk.loc[indices_test[(y_test == actual) & (y_pred == predicted)]][['Category', 'Concultatory']])
             print('')
 
 model.fit(features, labels)
