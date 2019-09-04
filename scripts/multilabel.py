@@ -16,7 +16,7 @@ df.head()
 df[df.isnull().any(axis=1)]
 
 
-df = df.fillna({"Category": "ΑΛΛΟ"})
+
 categories = df["Category"].value_counts()
 nsk_list = df['Category'].values.tolist()
 nsk_series= df['Category'].astype(str)
