@@ -16,7 +16,7 @@ df = xl.parse('Sheet1')
 df.head()
 
 nsk_list = df['Category'].values.tolist()
-nsk_list = df['Category'].astype(str)
+nsk_series= df['Category'].astype(str)
 nsk_list = [x.split(',')[0] for x in nsk_list]
 
 import matplotlib.pyplot as plt
