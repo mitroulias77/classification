@@ -26,8 +26,8 @@ STOPWORDS = set(stopwords.words('greek'))
 corpus = []
 
 for i in range(0, df.shape[0]):
-    subject = re.sub(r"\d+", '', df['Concultatory'][i],flags=re.I)
-    subject = re.sub(r"[-,()/@\'?\.$%_+\d]", '', df['Concultatory'][i],flags=re.I)
+    subject = re.sub(r"\d+", '', df['Title'][i],flags=re.I)
+    subject = re.sub(r"[-,()/@\'?\.$%_+\d]", '', df['Title'][i],flags=re.I)
     stemmer = gr_stemm.GreekStemmer()
     subject = subject.split()
     subject = [remove_emphasis(x) for x in subject]
@@ -37,7 +37,7 @@ for i in range(0, df.shape[0]):
     subject = " ".join(subject)
     corpus.append(subject)
 '''
-nsk=pd.DataFrame(df, columns=['Concultatory'])
+nsk=pd.DataFrame(df, columns=['Title'])
 nsk['Category'] = df['Label']
 nsk.head()
 
@@ -47,15 +47,15 @@ nsk = nsk[~nsk.Category.isin(to_remove)]
 nsk = nsk.reset_index(drop=True)
 
 fig = plt.figure(figsize=(8,6))
-nsk.groupby('Category').Concultatory.count().plot.bar(ylim=0)
+nsk.groupby('Category').Title.count().plot.bar(ylim=0)
 plt.show()
 #https://androidkt.com/saved-keras-model-to-predict-text-from-scratch/
 #lstm
 
 max_features = 30000
 tokenizer = Tokenizer(num_words=max_features, filters='!"#$%&amp;()*+,-./:;&lt;=>?@[\]^_`{|}~',lower=True,split=' ')
-tokenizer.fit_on_texts(nsk['Concultatory'].values)
-X1 = tokenizer.texts_to_sequences(nsk['Concultatory'].values)
+tokenizer.fit_on_texts(nsk['Title'].values)
+X1 = tokenizer.texts_to_sequences(nsk['Title'].values)
 X1 = pad_sequences(X1)
 
 

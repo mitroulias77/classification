@@ -106,5 +106,5 @@ for status in ['1','-1']:
     df_all['Title'] = df_all['Title'].apply(lambda x: x.rstrip())
     df_all['Concultatory'] = df_all['Concultatory'].apply(lambda x: x.rstrip())
     #Αποθήκευση df σε xlsx
-    fname_path = os.path.join('data','nsk_multilabel.xlsx')
+    fname_path = os.path.join('data','nsk_multiclass.xlsx')
     df_all.to_excel(fname_path, index=False)
