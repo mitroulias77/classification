@@ -80,6 +80,12 @@ def tokenize(x):
     lemmata=[i.strip() for i in x] #μερικά λήμματα περιέχουν κενά πρίν
     return lemmata
 
+from skmultilearn.problem_transform import BinaryRelevance
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+start = datetime.now()
+
 vectorizer = CountVectorizer(tokenizer = tokenize)
 lemma_dtm = vectorizer.fit_transform(lemma_data['Category'])
 
@@ -517,7 +523,6 @@ print ("Χρόνος Εκτέλεσης για τον Κατηγοριοποιη
 joblib.dump(classifier, 'data/LogisticR_tfidf_hyp_tuned_1gram.pkl')
 
 #TFIDF με 1-2 Grams
-
 
 start = datetime.now()
 
